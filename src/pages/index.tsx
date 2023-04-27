@@ -4,9 +4,12 @@ import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
+import { useState } from "react";
 
 const Home: NextPage = () => {
-  const hello = api.lyrics.findLyrics.useQuery({ query: "from tRPC" });
+  const [query, setQuery] = useState("never gonna give you up");
+
+  const lyrics = api.lyrics.findLyrics.useQuery({ query });
 
   return (
     <>
@@ -23,7 +26,7 @@ const Home: NextPage = () => {
 
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl">
-              {hello.data ? hello.data.lyrics : "Loading tRPC query..."}
+              {lyrics.data ? lyrics.data.lyrics : "Loading tRPC query..."}
             </p>
             <AuthShowcase />
           </div>
