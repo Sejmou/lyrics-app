@@ -52,8 +52,7 @@ export const lyricsRouter = createTRPCRouter({
           data.song.title +
           " by " +
           data.song.primary_artist.name +
-          "cannot be shown right now, but you can find them here:\n\n" +
-          data.song.url,
+          " will soon appear here.",
       };
     }),
 
