@@ -1,3 +1,4 @@
+import { type Input, useMIDI, useMIDINote } from "@react-midi/hooks";
 import { Checkbox, Label } from "flowbite-react";
 import { Fragment, useMemo } from "react";
 import { useCurrentSong, useSongStore } from "~/store";
@@ -14,10 +15,17 @@ const CurrentSong = (props: Props) => {
       currentSong ? splitIntoBlocksBySectionHeading(currentSong.lyrics) : [],
     [currentSong]
   );
+  const lyricBlockIds = useMemo(
+    () => lyricBlocks.map((b, i) => `${b.name}-${i}`),
+    [lyricBlocks]
+  );
 
   const showSectionHeadingsOnly = useSongStore(
     (state) => state.showSectionHeadingsOnly
   );
+
+  const { inputs } = useMIDI(); // Initially returns [[], []]
+  const selectedInput = inputs?.[1]; // TODO: Allow user to select input
 
   if (!currentSong) {
     return (
@@ -38,7 +46,7 @@ const CurrentSong = (props: Props) => {
       <SectionHeadingsCheckbox />
       <div className="flex flex-col gap-8">
         {lyricBlocks.map((b, i) => (
-          <div key={i}>
+          <div key={i} id={lyricBlockIds[i]}>
             <h4 className="font-semibold">{b.name}</h4>
             {!showSectionHeadingsOnly && (
               <p>
@@ -53,6 +61,7 @@ const CurrentSong = (props: Props) => {
           </div>
         ))}
       </div>
+      {selectedInput && <MidiPageScroll input={selectedInput} />}
     </div>
   );
 };
@@ -105,4 +114,38 @@ function splitIntoBlocksBySectionHeading(lyrics: string) {
   }
 
   return blocks;
+}
+
+// TODO: there MUST be a cleaner way to do this lol
+const MidiPageScroll = ({ input }: { input: Input }) => {
+  useMIDIControlledPageScroll(input);
+  return <></>;
+};
+
+function useMIDIControlledPageScroll(input: Input) {
+  const event = useMIDINote(input);
+  if (!event) return;
+  const { on, note } = event;
+
+  if (on && note === 3) {
+    scrollDown();
+  } else if (on && note === 2) {
+    scrollUp();
+  }
+}
+
+function scrollDown() {
+  window.scrollBy({
+    top: window.innerHeight * 0.5,
+    left: 0,
+    behavior: "smooth",
+  });
+}
+
+function scrollUp() {
+  window.scrollBy({
+    top: -window.innerHeight * 0.5,
+    left: 0,
+    behavior: "smooth",
+  });
 }

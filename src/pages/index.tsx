@@ -2,12 +2,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 
 import { useEffect, useState } from "react";
-import {
-  Input,
-  useMIDI,
-  useMIDIControls,
-  useMIDINote,
-} from "@react-midi/hooks";
+import { Input, useMIDI, useMIDINote } from "@react-midi/hooks";
 import AddSong from "~/components/AddSong";
 import dynamic from "next/dynamic";
 
@@ -32,9 +27,9 @@ const Home: NextPage = () => {
     }
   }, [rotateScreen]);
 
-  const { inputs, outputs, hasMIDI } = useMIDI(); // Initially returns [[], []]
-  const selectedInput = inputs?.[1];
-  console.log(inputs, outputs, hasMIDI);
+  const { inputs } = useMIDI(); // Initially returns [[], []]
+  console.log("MIDI inputs", inputs);
+  const selectedInput = inputs?.[1]; // TODO: make this configurable
 
   return (
     <>
