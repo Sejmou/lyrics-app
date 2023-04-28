@@ -7,6 +7,9 @@ type SongStore = {
   removeSong: (id: string) => void;
   setCurrentSong: (id: string) => void;
   currentSongId?: string;
+
+  showSectionHeadingsOnly: boolean;
+  setShowSectionHeadingsOnly: (show: boolean) => void;
 };
 
 type NewSong = {
@@ -52,7 +55,13 @@ export const useSongStore = create<SongStore>()(
           set((state) => ({
             currentSongId: state.songs.find((s) => s.id === id)?.id,
           })),
+        showSectionHeadingsOnly: false,
+        setShowSectionHeadingsOnly: (show) =>
+          set(() => ({
+            showSectionHeadingsOnly: show,
+          })),
       }),
+
       {
         name: "song-storage", // name of the item in the storage (must be unique)
         storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used

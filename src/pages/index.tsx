@@ -80,17 +80,3 @@ const MIDINoteLog = ({ input }: { input: Input }) => {
     </div>
   );
 };
-
-const MIDIControlLog = ({ input }: { input: Input }) => {
-  const controls = [13, 14, 15];
-  const values = useMIDIControls(input, controls, { channel: 1 }); // Intially returns [0, 0, 0]
-  return (
-    <div>
-      {controls.map((control, i) => (
-        <div key={i}>
-          Control {control}: {values[control]}
-        </div>
-      ))}
-    </div>
-  );
-};
