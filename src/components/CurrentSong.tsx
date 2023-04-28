@@ -25,7 +25,7 @@ const CurrentSong = (props: Props) => {
   );
 
   const { inputs } = useMIDI(); // Initially returns [[], []]
-  const selectedInput = inputs?.[1]; // TODO: Allow user to select input
+  const selectedInput = inputs?.[1] || inputs?.[0]; // TODO: Allow user to select input
 
   if (!currentSong) {
     return (

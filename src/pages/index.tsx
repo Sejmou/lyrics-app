@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 
   const { inputs } = useMIDI(); // Initially returns [[], []]
   console.log("MIDI inputs", inputs);
-  const selectedInput = inputs?.[1]; // TODO: make this configurable
+  const selectedInput = inputs?.[1] || inputs?.[0]; // TODO: make this configurable
 
   return (
     <>
@@ -53,6 +53,16 @@ const Home: NextPage = () => {
             <div className="flex flex-col items-center gap-4">
               <span>Current MIDI device: {selectedInput.name}</span>
               <MIDINoteLog input={selectedInput} />
+            </div>
+          )}
+          {inputs && inputs.length > 0 && (
+            <div className="flex flex-col items-center gap-4">
+              <span>Available MIDI devices:</span>
+              <ul className="list-inside list-disc">
+                {inputs.map((input) => (
+                  <li key={input.id}>{input.name}</li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
