@@ -1,3 +1,4 @@
+import { type Input } from "@react-midi/hooks";
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 
@@ -10,6 +11,12 @@ type SongStore = {
 
   showSectionHeadingsOnly: boolean;
   setShowSectionHeadingsOnly: (show: boolean) => void;
+
+  midiInput?: Input;
+  setMidiInput: (input?: Input) => void;
+
+  screenRotated: boolean;
+  setRotateScreen: (rotate: boolean) => void;
 };
 
 type NewSong = {
@@ -59,6 +66,15 @@ export const useSongStore = create<SongStore>()(
         setShowSectionHeadingsOnly: (show) =>
           set(() => ({
             showSectionHeadingsOnly: show,
+          })),
+        setMidiInput: (input) =>
+          set(() => ({
+            midiInput: input,
+          })),
+        screenRotated: false,
+        setRotateScreen: (rotate) =>
+          set(() => ({
+            screenRotated: rotate,
           })),
       }),
 

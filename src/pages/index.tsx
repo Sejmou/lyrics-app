@@ -1,11 +1,13 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 
-import { WheelEvent, useEffect, useRef, useState } from "react";
-import { type Input, useMIDI, useMIDINote } from "@react-midi/hooks";
+import { type WheelEvent, useEffect, useRef } from "react";
 import AddSong from "~/components/AddSong";
 import dynamic from "next/dynamic";
 import CheckboxInput from "~/components/CheckboxInput";
+import { useSongStore } from "~/store";
+
+import MIDIScroll from "~/components/MIDIScroll";
 
 // would get hydration error if not loading as dynamic component
 // reason: store state is local to the user's device and not available to the server (and hence different than what server renders initially)
@@ -17,21 +19,29 @@ const CurrentSong = dynamic(() => import("~/components/CurrentSong"), {
   ssr: false,
 });
 
+const MIDIInputSelect = dynamic(() => import("~/components/MIDIInputSelect"), {
+  ssr: false,
+});
+
 const Home: NextPage = () => {
-  const [rotateScreen, setRotateScreen] = useState(true);
+  const screenRotated = useSongStore((state) => state.screenRotated);
+  const setRotateScreen = useSongStore((state) => state.setRotateScreen);
+  const midiInput = useSongStore((state) => state.midiInput);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && rotateScreen) {
+    if (typeof window !== "undefined" && screenRotated) {
       document.body.classList.add("rotated");
     } else {
       document.body.classList.remove("rotated");
     }
-  }, [rotateScreen]);
+  }, [screenRotated]);
 
   const containerRef = useRef<HTMLElement>(null);
   const handleScroll = (event: WheelEvent<HTMLElement>) => {
+    // TODO: doesn't seem to work properly right now
+
     const container = containerRef.current;
-    if (!container || !rotateScreen) return;
+    if (!container || !screenRotated) return;
 
     // if screen is rotated, we need to scroll horizontally instead of vertically lol
 
@@ -45,10 +55,6 @@ const Home: NextPage = () => {
 
     event.preventDefault();
   };
-
-  const { inputs } = useMIDI(); // Initially returns [[], []]
-  console.log("MIDI inputs", inputs);
-  const selectedInput = inputs?.[1] || inputs?.[0]; // TODO: make this configurable
 
   return (
     <>
@@ -71,28 +77,15 @@ const Home: NextPage = () => {
           </h1>
           <CheckboxInput
             label="Rotate screen"
-            checked={rotateScreen}
+            id="rotate-screen"
+            checked={screenRotated}
             onChange={setRotateScreen}
           />
           <CurrentSong />
           <Songs />
+          <MIDIInputSelect />
+          {midiInput && <MIDIScroll input={midiInput} ref={containerRef} />}
           <AddSong />
-          {selectedInput && (
-            <div className="flex flex-col items-center gap-4">
-              <span>Current MIDI device: {selectedInput.name}</span>
-              <MIDINoteLog input={selectedInput} />
-            </div>
-          )}
-          {inputs && inputs.length > 0 && (
-            <div className="flex flex-col items-center gap-4">
-              <span>Available MIDI devices:</span>
-              <ul className="list-inside list-disc">
-                {inputs.map((input) => (
-                  <li key={input.id}>{input.name}</li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </main>
     </>
@@ -100,16 +93,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-const MIDINoteLog = ({ input }: { input: Input }) => {
-  const event = useMIDINote(input); // Intially returns undefined
-  if (!event) {
-    return <div>Waiting for note...</div>;
-  }
-  const { on, note, velocity, channel } = event;
-  return (
-    <div>
-      Note {note} {on ? "on" : "off"} ({velocity}) on channel {channel}
-    </div>
-  );
-};

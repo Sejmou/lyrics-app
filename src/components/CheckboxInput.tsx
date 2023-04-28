@@ -4,6 +4,7 @@ import { Checkbox, Label } from "flowbite-react";
 type Props = {
   className?: string;
   label: string;
+  id: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
 };
@@ -15,11 +16,11 @@ const CheckboxInput = (props: Props) => {
       // onClick={() => props.onChange(!props.checked)}
     >
       <Checkbox
-        id="checkbox"
+        id={props.id}
         checked={props.checked}
         onChange={(e) => props.onChange(e.target.checked)}
       />
-      <Label htmlFor="checkbox">{props.label}</Label>
+      <Label htmlFor={props.id}>{props.label}</Label>
     </div>
   );
 };
