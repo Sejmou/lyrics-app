@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* The rotated class is applied conditionally in the app to rotate everything 90 degrees
+   (this stupid workaround is needed because you can't rotate the screen directly when using an iPad as additional Mac monitor)
+   note: the body must have a single child element for this to work
+   see also: https://stackoverflow.com/a/35856390/13727176 */
+body.rotated {
+  margin: 0;
+  overflow: hidden;
+}
+
+body.rotated > .wrapper {
+  transform: rotate(90deg);
+  transform-origin: bottom left;
+
+  position: absolute;
+  top: -100vw;
+  left: 0;
+
+  height: 100vw;
+  width: 100vh;
+
+  overflow: auto;
+}

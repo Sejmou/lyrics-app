@@ -1,10 +1,11 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 
-import { useEffect, useState } from "react";
-import { Input, useMIDI, useMIDINote } from "@react-midi/hooks";
+import { WheelEvent, useEffect, useRef, useState } from "react";
+import { type Input, useMIDI, useMIDINote } from "@react-midi/hooks";
 import AddSong from "~/components/AddSong";
 import dynamic from "next/dynamic";
+import CheckboxInput from "~/components/CheckboxInput";
 
 // would get hydration error if not loading as dynamic component
 // reason: store state is local to the user's device and not available to the server (and hence different than what server renders initially)
@@ -17,15 +18,33 @@ const CurrentSong = dynamic(() => import("~/components/CurrentSong"), {
 });
 
 const Home: NextPage = () => {
-  const [rotateScreen, setRotateScreen] = useState(false);
+  const [rotateScreen, setRotateScreen] = useState(true);
 
   useEffect(() => {
     if (typeof window !== "undefined" && rotateScreen) {
-      document.body.setAttribute("style", "transform: rotate(-90deg);");
+      document.body.classList.add("rotated");
     } else {
-      document.body.removeAttribute("style");
+      document.body.classList.remove("rotated");
     }
   }, [rotateScreen]);
+
+  const containerRef = useRef<HTMLElement>(null);
+  const handleScroll = (event: WheelEvent<HTMLElement>) => {
+    const container = containerRef.current;
+    if (!container || !rotateScreen) return;
+
+    // if screen is rotated, we need to scroll horizontally instead of vertically lol
+
+    const isVerticalScroll = container.scrollHeight > container.clientHeight;
+
+    if (isVerticalScroll) {
+      container.scrollLeft += event.deltaY;
+    } else {
+      container.scrollLeft += event.deltaX;
+    }
+
+    event.preventDefault();
+  };
 
   const { inputs } = useMIDI(); // Initially returns [[], []]
   console.log("MIDI inputs", inputs);
@@ -41,11 +60,20 @@ const Home: NextPage = () => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex min-h-screen flex-col items-center justify-center">
+      <main
+        className="flex min-h-screen flex-col items-center justify-center"
+        ref={containerRef}
+        onWheel={handleScroll}
+      >
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
             My <span className="text-[hsl(280,100%,70%)]">Song</span>Book
           </h1>
+          <CheckboxInput
+            label="Rotate screen"
+            checked={rotateScreen}
+            onChange={setRotateScreen}
+          />
           <CurrentSong />
           <Songs />
           <AddSong />
